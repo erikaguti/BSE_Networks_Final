@@ -228,7 +228,7 @@ class Network():
 
         if self.node_file != None:
             graph = self.open_node_file(graph)
-            Visualization.reLocateLinks(graph)
+            #Visualization.reLocateLinks(graph)
         self.graph = graph
 
 
