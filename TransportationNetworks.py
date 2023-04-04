@@ -367,16 +367,20 @@ class Network():
 
         shortestpath_graph = {}
         for i in self.origins:
-            shortestpath_graph[i] = nx.single_source_dijkstra(self.graph, i, weight="weight")
+            if i in self.graph.nodes:  # Check if the origin node exists in the subnetwork
+                shortestpath_graph[i] = nx.single_source_dijkstra(self.graph, i, weight="weight")
+
         for (i, j) in self.od_vols:
             odvol = self.od_vols[(i, j)]
-            try:
-                path = shortestpath_graph[str(i)][1][str(j)]
-                for p in range(len(path) - 1):
-                    fnode, tnode = path[p], path[p + 1]
-                    self.graph[fnode][tnode]["object"].vol += odvol
-            except KeyError:
-                pass
+            if i in shortestpath_graph and j in shortestpath_graph[i][1]:  # Check if the origin and destination nodes exist in the subnetwork
+             path = shortestpath_graph[str(i)][1][str(j)]
+            # Update the cost and flow values only if a valid path is found
+            for p in range(len(path) - 1):
+                fnode, tnode = path[p], path[p + 1]
+                self.graph[fnode][tnode]["object"].vol += odvol
+        else:
+            pass  # Do nothing if an invalid path is found
+
 
 
     def update_linkcost(self):
